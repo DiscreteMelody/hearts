@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace Hearts_AI
 {
+    [Serializable]
     class Memory
     {
         private List<Card>[] memoryOfHand = new List<Card>[4] { new List<Card>(), new List<Card>(), new List<Card>(), new List<Card>() };

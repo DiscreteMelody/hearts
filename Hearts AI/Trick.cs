@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace Hearts_AI
 {
+    [Serializable]
     class Trick
     {
         public static readonly int TRICK_SIZE = 4;

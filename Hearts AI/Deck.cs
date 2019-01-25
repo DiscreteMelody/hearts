@@ -8,6 +8,7 @@ using System.Windows.Forms;
 
 namespace Hearts_AI
 {
+    [Serializable]
     class Deck
     {
         public static readonly string[] SUITS = new string[] { "clubs", "diamonds", "spades", "hearts" };

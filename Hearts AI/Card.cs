@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 namespace Hearts_AI
 {
+    [Serializable]
     class Card
     {
         public static readonly int MIN_VALUE = 1;  //the bottom of a suit is represented as this number in strength

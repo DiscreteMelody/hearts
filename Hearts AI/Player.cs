@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace Hearts_AI
 {
+    [Serializable]
     class Player
     {
         public static readonly string[] Nicknames = { "South", "West", "North", "East" };

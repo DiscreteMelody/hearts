@@ -29,6 +29,12 @@ namespace Hearts_AI
             this.game.startRound();
             this.showCards();
             this.updateScoreLabels();
+
+            Game clonedGame = (Game)Simulator.cloneGame(game);
+
+            clonedGame.Players[0].TotalScore = 20;
+
+            MessageBox.Show("Real game: " + game.Players[0].TotalScore.ToString() + ". Cloned game: " + clonedGame.Players[0].TotalScore.ToString());
         }
 
         private void setFormPicBoxToCard(PictureBox picBox, Card card)

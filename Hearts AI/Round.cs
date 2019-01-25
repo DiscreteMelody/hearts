@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace Hearts_AI
 {
+    [Serializable]
     class Round
     {
         public static readonly int NUM_OF_TRICKS = 13;

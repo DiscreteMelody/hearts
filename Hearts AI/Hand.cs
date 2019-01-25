@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace Hearts_AI
 {
+    [Serializable]
     class Hand
     {
         //2D list of cards held in the 4 suits
