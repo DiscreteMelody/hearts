@@ -28,7 +28,7 @@ namespace Hearts_AI
 
             this.game.startRound();
             this.showCards();
-            this.updateLabelsWithScores();
+            this.updateScoreLabels();
         }
 
         private void setFormPicBoxToCard(PictureBox picBox, Card card)
@@ -46,7 +46,7 @@ namespace Hearts_AI
             picBox.Visible = false;
         }
 
-        private void updateLabelsWithScores()
+        private void updateScoreLabels()
         {
             Player player = null;
             string labelText = "";
@@ -132,19 +132,22 @@ namespace Hearts_AI
             {
                 await Task.Delay(2000);
                 hideTrickPicBoxes();
-                
-                if(this.game.Round.TricksRemaining == 0)
+
+                Player winner = this.game.Round.Trick.findTrickWinner();
+                this.game.Round.Trick.addTrickPoints(winner);
+
+                if (this.game.Round.TricksRemaining == 0)
                 {
-                    this.game.Round.Trick.findTrickWinner();
                     this.game.endRound();
                     showCards();
                 }
                 else if(this.game.Round.TricksRemaining > 0)
                 {
-                    this.game.Round.Trick.findTrickWinner().Turn = true;
+                    winner.Turn = true;
                     this.game.Round.startNewTrick();
                 }
-                updateLabelsWithScores();
+
+                updateScoreLabels();
             }
 
             //this.makeBotMove();

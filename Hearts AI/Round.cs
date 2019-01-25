@@ -46,9 +46,30 @@ namespace Hearts_AI
             set { this.roundCounter = value; }
         }
 
+        /// <summary>
+        /// returns a 2-dimensional list array of cards remaining
+        /// </summary>
         public List<Card>[] CardsRemaining
         {
             get { return this.cardsRemaining; }
+        }
+
+        /// <summary>
+        /// returns a 1-dimensional list of cards remaining
+        /// </summary>
+        public List<Card> getCardsRemaining()
+        {
+            List<Card> cardsLeft = new List<Card>();
+
+            foreach(List<Card> suit in this.cardsRemaining)
+            {
+                foreach(Card card in suit)
+                {
+                    cardsLeft.Add(card);
+                }
+            }
+
+            return cardsLeft;
         }
 
         public void startNewTrick()

@@ -18,6 +18,7 @@ namespace Hearts_AI
         private int roundScore = 0; //points accumulated during a round
         private bool turn = false;
         private bool isBot = false;
+        private int place = 1;
 
         public Player()
         {
@@ -69,6 +70,12 @@ namespace Hearts_AI
         {
             get { return this.name; }
             set { this.name = value; }
+        }
+
+        public int Place
+        {
+            get { return this.place; }
+            set { this.place = value; }
         }
     }
 }

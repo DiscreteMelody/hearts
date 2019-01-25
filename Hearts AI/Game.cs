@@ -9,13 +9,13 @@ namespace Hearts_AI
     class Game
     {
         public static readonly int NUM_OF_PLAYERS = Player.Nicknames.Length;
+        public static readonly int ENDING_SCORE = 100;
 
         private Player[] players = new Player[NUM_OF_PLAYERS];
         private List<Bot> bots = new List<Bot>();
 
         private Deck deck = new Deck();
         private Round round = new Round();
-        private bool started = false;
 
         public Game(Player south, Player west, Player north, Player east)
         {
@@ -41,12 +41,6 @@ namespace Hearts_AI
             get { return this.round; }
         }
 
-        public bool Started
-        {
-            get { return this.started; }
-            set { this.started = value; }
-        }
-
         public void dealCards()
         {
             for (int i = 0; i < Round.NUM_OF_TRICKS; i++)
@@ -67,13 +61,12 @@ namespace Hearts_AI
             this.round.startNewRound();
             this.resetBotMemories();
             find2ofClubs();
-
-            this.started = true;
         }
 
         public void endRound()
         {
             this.resetTurns();
+            this.checkForMoon();
             this.addPointsTaken();
             this.resetRoundPoints();
             this.startRound();
@@ -121,6 +114,62 @@ namespace Hearts_AI
             }
         }
 
+        private void checkForMoon()
+        {
+            Player moonShooter = null;
+
+            foreach(Player player in this.players)
+            {
+                if (player.RoundScore == 26)
+                {
+                    moonShooter = player;
+                    break;
+                }
+            }
+
+            if (moonShooter == null)
+                return;
+            else
+                shootMoon(moonShooter);
+        }
+
+        private void shootMoon(Player shooter)
+        {
+            int moonPenalty = 26;
+            int lowestScore = this.getLowestScore();
+            int highestScore = this.getHighestScore();
+            int shooterScore = shooter.TotalScore;
+            
+            if(shooterScore - lowestScore <= moonPenalty || highestScore < Game.ENDING_SCORE - moonPenalty)
+            {
+                foreach(Player player in this.players)
+                {
+                    if (player == shooter)
+                        player.RoundScore = 0;
+                    else
+                        player.RoundScore = moonPenalty;
+                }
+            }
+            else
+            {
+                shooter.RoundScore = moonPenalty * -1;
+            }
+        }
+
+        private int getHighestScore()
+        {
+            int highestScore = 0;
+
+            return highestScore;
+        }
+
+        private int getLowestScore()
+        {
+            int lowestScore = 0;
+
+            return lowestScore;
+        }
+
         //once a round is complete, the points taken in a round is added to a player's score
         private void addPointsTaken()
         {
@@ -130,7 +179,34 @@ namespace Hearts_AI
             }
         }
 
-        //sets all players' round scores to 0
+        private void updatePlaces()
+        {
+            int place = 1;
+            int numOfPlayersPlaced = 0;
+
+            for(int i = 0; i > 0; i++)
+            {
+                foreach(Player player in this.players)
+                {
+                    if (player.TotalScore == i)
+                    {
+                        player.Place = place;
+                        numOfPlayersPlaced++;
+                    }
+                }
+
+                if(numOfPlayersPlaced == Game.NUM_OF_PLAYERS || i == 200)
+                {
+                    return;
+                }
+                else
+                {
+                    place = 1 + numOfPlayersPlaced;
+                }
+            }
+        }
+
+        //ressets all players' round scores to 0
         private void resetRoundPoints()
         {
             foreach(Player player in this.players)

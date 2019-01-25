@@ -82,7 +82,7 @@ namespace Hearts_AI
             return winner;
         }
 
-        public void addRoundPoints(Player player)
+        public void addTrickPoints(Player player)
         {
             player.RoundScore += this.points;
         }
