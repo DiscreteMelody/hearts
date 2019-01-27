@@ -10,18 +10,40 @@ namespace Hearts_AI
 {
     static class Simulator
     {
-        public static object cloneGame(Game game_in_progress)
+
+        public static int scoreGame()
         {
-            object clonedGame = null;
-            MemoryStream memoryStream = new MemoryStream();
-            BinaryFormatter binaryFormatter = new BinaryFormatter();
+            int score = 0;
 
-            binaryFormatter.Serialize(memoryStream, game_in_progress);
-            memoryStream.Position = 0;
+            return score;
+        }
 
-            clonedGame = (Game)binaryFormatter.Deserialize(memoryStream);
+        public static bool isPossibleTrick(Round sample_round, Bot permutating_bot)
+        {
+            bool isPossible = true;
+            string leadSuit = sample_round.Trick.LeadSuit;
+            int numOfLeadHeld = permutating_bot.Hand.getHeldSuit(leadSuit).Count;
+            int numOfLeadNotHeld = sample_round.CardsRemaining[Deck.SUIT_INDEXES[leadSuit]].Count - numOfLeadHeld;
+            int numOfLeadRequired = 0;
 
-            return clonedGame;
+            if (numOfLeadHeld < numOfLeadNotHeld)
+                numOfLeadRequired = 2;
+
+            foreach(Card card in sample_round.Trick.Cards)
+            {
+                if (card.Suit == leadSuit)
+                    numOfLeadRequired--;
+            }
+
+            if (numOfLeadRequired > 0)
+                isPossible = false;
+
+            return isPossible;
+        }
+
+        public static void scoreGame(Game game_to_score, Bot bot_to_score)
+        {
+
         }
     }
 }

@@ -6,10 +6,9 @@ using System.Threading.Tasks;
 
 namespace Hearts_AI
 {
-    [Serializable]
     class Trick
     {
-        public static readonly int TRICK_SIZE = 4;
+        public static readonly int TRICK_SIZE = Game.NUM_OF_PLAYERS;
         private string leadSuit = "";
         private int points = 0;
 
@@ -24,6 +23,20 @@ namespace Hearts_AI
             
         }
 
+        public Trick(Trick trick_to_copy)
+        {
+            this.leadSuit = trick_to_copy.leadSuit;
+            this.points = trick_to_copy.points;
+            foreach(Card cardToCopy in trick_to_copy.cards)
+            {
+                this.cards.Add(new Card(cardToCopy));
+            }
+            foreach(Player playerToCopy in trick_to_copy.players)
+            {
+                this.players.Add(new Player(playerToCopy));
+            }
+        }
+
         public int CardCount
         {
             get { return this.cards.Count; }
@@ -35,9 +48,19 @@ namespace Hearts_AI
             set { this.leadSuit = value; }
         }
 
+        public Player Leader
+        {
+            get { return this.players[0]; }
+        }
+
         public int Points
         {
             get { return this.points; }
+        }
+
+        public List<Card> Cards
+        {
+            get { return this.cards; }
         }
 
         //adds a card played to the trick
@@ -86,12 +109,6 @@ namespace Hearts_AI
         public void addTrickPoints(Player player)
         {
             player.RoundScore += this.points;
-        }
-
-        public Player getLeader()
-        {
-            //the player first in the players list led the suit
-            return this.players[0];
         }
     }
 }

@@ -6,30 +6,42 @@ using System.Threading.Tasks;
 
 namespace Hearts_AI
 {
-    [Serializable]
     class Player
     {
         public static readonly string[] Nicknames = { "South", "West", "North", "East" };
 
-        private string nickname = "";    //north south east or west
-        private string name = "";        //actual names, feature to be implemented later
-        private Hand hand = new Hand();
+        protected string nickname = "";    //north south east or west
+        protected string name = "";        //actual names, feature to be implemented later
+        protected Hand hand = new Hand();
 
-        private int totalScore = 0; //point total after a round ends
-        private int roundScore = 0; //points accumulated during a round
-        private bool turn = false;
-        private bool isBot = false;
-        private int place = 1;
+        protected int totalScore = 0; //point total after a round ends
+        protected int roundScore = 0; //points accumulated during a round
+        protected bool turn = false;
+        protected bool isBot = false;
+        protected int place = 1;
 
         public Player()
         {
             
         }
 
+        //instantiation constructor
         public Player(string player_name, string player_nickname)
         {
             this.name = player_name;
             this.nickname = player_nickname;
+        }
+
+        //copy constructor
+        public Player(Player player_to_copy)
+        {
+            this.nickname = player_to_copy.nickname;
+            this.name = player_to_copy.nickname;
+            this.totalScore = player_to_copy.totalScore;
+            this.roundScore = player_to_copy.roundScore;
+            this.turn = player_to_copy.turn;
+            this.isBot = player_to_copy.isBot;
+            this.place = player_to_copy.place;
         }
 
         public int TotalScore

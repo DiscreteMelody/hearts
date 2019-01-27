@@ -17,11 +17,31 @@ namespace Hearts_AI
         private bool isOpeningTrick = true;
         private int roundCounter = 0;
         private bool heartsAreBroken = false;
+        private int numOfCardsRemaining = Deck.NUM_OF_CARDS;
         private List<Card>[] cardsRemaining = new List<Card>[4] { new List<Card>(), new List<Card>(), new List<Card>(), new List<Card>()};
 
         public Round()
         {
             
+        }
+
+        public Round(Round round_to_copy)
+        {
+            this.trick = new Trick(round_to_copy.trick);
+            this.tricksRemaining = round_to_copy.tricksRemaining;
+            this.isOpeningTrick = round_to_copy.isOpeningTrick;
+            this.roundCounter = round_to_copy.roundCounter;
+            this.heartsAreBroken = round_to_copy.heartsAreBroken;
+            this.numOfCardsRemaining = round_to_copy.numOfCardsRemaining;
+            this.cardsRemaining = new List<Card>[4] { new List<Card>(), new List<Card>(), new List<Card>(), new List<Card>() };
+
+            for (int s = 0; s < round_to_copy.cardsRemaining.Length; s++)
+            {
+                for(int v = 0; v < round_to_copy.cardsRemaining[s].Count; v++)
+                {
+                    this.cardsRemaining[s].Add(new Card(round_to_copy.cardsRemaining[s][v]));
+                }
+            }
         }
 
         public int TricksRemaining
@@ -33,6 +53,7 @@ namespace Hearts_AI
         public Trick Trick
         {
             get { return this.trick; }
+            set { this.trick = value; }
         }
 
         public bool IsOpeningTrick
@@ -48,11 +69,16 @@ namespace Hearts_AI
         }
 
         /// <summary>
-        /// returns a 2-dimensional list array of cards remaining
+        /// returns a 2-dimensional list array of cards remaining sorted by suit
         /// </summary>
         public List<Card>[] CardsRemaining
         {
             get { return this.cardsRemaining; }
+        }
+
+        public int NumOfCardsRemaining
+        {
+            get { return this.numOfCardsRemaining; }
         }
 
         /// <summary>
@@ -77,6 +103,7 @@ namespace Hearts_AI
         {
             this.isOpeningTrick = false;
             this.trick = new Trick();
+            this.tricksRemaining--;
         }
 
         public void startNewRound()
@@ -86,7 +113,8 @@ namespace Hearts_AI
             this.isOpeningTrick = true;
             this.heartsAreBroken = false;
             this.roundCounter++;
-            resetCardsRemaining();
+            this.resetCardsRemaining();
+            this.numOfCardsRemaining = Deck.NUM_OF_CARDS;
         }
 
         private void resetCardsRemaining()
@@ -97,6 +125,8 @@ namespace Hearts_AI
 
             for(int s = 0; s < Deck.SUITS.Length; s++)
             {
+                this.cardsRemaining[s].Clear();
+
                 for(int v = 0; v < Deck.VALUES.Length; v++)
                 {
                     points = 0;
@@ -111,6 +141,8 @@ namespace Hearts_AI
                     this.cardsRemaining[s].Add(new Card(value, suit, points));
                 }
             }
+
+            this.numOfCardsRemaining = Deck.NUM_OF_CARDS;
         }
 
         public void removeFromRemainingCards(Card card_to_remove)
@@ -125,6 +157,8 @@ namespace Hearts_AI
                     break;
                 }
             }
+
+            this.numOfCardsRemaining--;
 
             if (card_to_remove.Suit == "hearts")
                 this.heartsAreBroken = true;

@@ -29,12 +29,6 @@ namespace Hearts_AI
             this.game.startRound();
             this.showCards();
             this.updateScoreLabels();
-
-            Game clonedGame = (Game)Simulator.cloneGame(game);
-
-            clonedGame.Players[0].TotalScore = 20;
-
-            MessageBox.Show("Real game: " + game.Players[0].TotalScore.ToString() + ". Cloned game: " + clonedGame.Players[0].TotalScore.ToString());
         }
 
         private void setFormPicBoxToCard(PictureBox picBox, Card card)
@@ -88,7 +82,6 @@ namespace Hearts_AI
                     {
                         clearFormPicBox(picBoxToChange);
                     }
-                    
                 }
             }
         }
@@ -141,6 +134,7 @@ namespace Hearts_AI
 
                 Player winner = this.game.Round.Trick.findTrickWinner();
                 this.game.Round.Trick.addTrickPoints(winner);
+                this.game.Round.startNewTrick();
 
                 if (this.game.Round.TricksRemaining == 0)
                 {
@@ -150,13 +144,12 @@ namespace Hearts_AI
                 else if(this.game.Round.TricksRemaining > 0)
                 {
                     winner.Turn = true;
-                    this.game.Round.startNewTrick();
                 }
 
                 updateScoreLabels();
             }
 
-            //this.makeBotMove();
+            this.makeBotMove();
         }
 
         private async void makeBotMove()
@@ -183,7 +176,6 @@ namespace Hearts_AI
             picBoxIndex = bot.ChosenCardIndex;
             picBoxToClick = this.heartsForm.getHandPicBoxes(playerIndex)[picBoxIndex];
 
-            await Task.Delay(500);
             this.onCardClicked(picBoxToClick, EventArgs.Empty);
         }
 

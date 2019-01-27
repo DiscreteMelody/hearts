@@ -6,19 +6,43 @@ using System.Threading.Tasks;
 
 namespace Hearts_AI
 {
-    [Serializable]
     class Bot : Player
     {
-        private Card chosenCard;
+        private Card chosenCard = new Card("", "");
         private int chosenCardIndex = 0;
         private Memory[] memoryOfPlayers = new Memory[Game.NUM_OF_PLAYERS - 1]; //the bot remembers all other players except for itself
 
+        //instantiate constructor
         public Bot(string player_name, string player_nickname)
         {
             this.Name = player_name;
             this.Nickname = player_nickname;
             this.IsBot = true;
         }
+
+        /// <summary>
+        /// Creates a deep copy of a Bot object.
+        /// </summary>
+        /// <param name="bot_to_copy">The Bot object to deep copy.</param>
+        public Bot(Bot bot_to_copy)
+        {
+            this.chosenCard = new Card(bot_to_copy.chosenCard);
+            this.chosenCard = bot_to_copy.chosenCard;
+
+            for(int i = 0; i < bot_to_copy.memoryOfPlayers.Length; i++)
+            {
+                this.memoryOfPlayers[i] = new Memory(bot_to_copy.memoryOfPlayers[i]);
+            }
+
+            this.nickname = bot_to_copy.nickname;
+            this.name = bot_to_copy.name;
+            this.hand = new Hand(bot_to_copy.hand);
+            this.totalScore = bot_to_copy.totalScore;
+            this.roundScore = bot_to_copy.roundScore;
+            this.turn = bot_to_copy.turn;
+            this.isBot = bot_to_copy.isBot;
+            this.place = bot_to_copy.place;
+    }
 
         public int ChosenCardIndex
         {
@@ -38,11 +62,100 @@ namespace Hearts_AI
             }
         }
 
-        public void chooseCard(Game game)
+        public async void chooseCard(Game game)
         {
-            List<Card> legalCards = game.Round.getLegalCardsInHand(this);
-            this.chosenCard = legalCards[legalCards.Count - 1];
-            updateChosenIndex();
+            Game copiedGame = new Game(game);
+            List<Card> legalCards = copiedGame.Round.getLegalCardsInHand(this);
+            int[] cardScores = new int[legalCards.Count];
+            List<int> iterators = new List<int>();
+            List<List<Card>> possibleHeldCards = new List<List<Card>>();    //a 2D list of cards possibly held by others
+            int playersLeftToPlay = Game.NUM_OF_PLAYERS - (copiedGame.Round.Trick.CardCount + 1);
+            List<Card> permutation = new List<Card>();
+            int counter = 0;
+            bool permutating = true;
+
+            //add an iterator for each player left to play in the trick and add a list of possible cards for each upcoming player
+            for (int i = 0; i < playersLeftToPlay; i++)
+            {
+                iterators.Add(0);
+                possibleHeldCards.Add(this.getPossibleCards(this.memoryOfPlayers[i], copiedGame.Round));
+            }
+
+            for(int c = 0; c < legalCards.Count; c++)
+            {
+                permutating = true;
+
+                while (permutating)
+                {
+                    permutation.Clear();
+                    permutation.Add(legalCards[c]);
+
+                    if(iterators.Count > 0)
+                    {
+                        for (int i = 0; i < iterators.Count; i++)
+                        {
+                            List<Card> currentHand = possibleHeldCards[i];
+                            int currentIterator = iterators[i];
+
+                            permutation.Add(currentHand[currentIterator]);
+                        }
+
+                        for (int i = 0; i < iterators.Count; i++)
+                        {
+                            if (iterators[i] < possibleHeldCards[i].Count - 1)
+                            {
+                                iterators[i]++;
+                                break;
+                            }
+                            else
+                            {
+                                iterators[i] = 0;
+                                continue;
+                            }
+                        }
+
+
+                        //if the iterators have all been reset to 0, all permutations have been checked
+                        if (iterators.Distinct().Count() == 1 && iterators[0] == 0)
+                        {
+                            permutating = false;
+                        }
+
+                        //to prevent multiple of a card from being permutated
+                        if (permutation.Count != permutation.Distinct().Count())
+                        {
+                            continue;
+                        }
+
+                        copiedGame.Round = new Round(game.Round);
+                        for(int i = 0; i < permutation.Count; i++)
+                        {
+                            if(i > 0)
+                                copiedGame.Round.Trick.addCardToTrick(this.memoryOfPlayers[i - 1].MemorizedPlayer, permutation[i]);
+                            else
+                                copiedGame.Round.Trick.addCardToTrick(this, permutation[i]);
+                        }
+
+                        if (Simulator.isPossibleTrick(copiedGame.Round, this) == false)
+                        {
+                            continue;
+                        }
+                    }
+                    else
+                    {
+                        permutating = false;
+                    }
+
+                    copiedGame = new Game(game);
+                    //scoring function will go here
+                    counter++;
+                }
+            }
+
+            System.Windows.Forms.MessageBox.Show(counter.ToString());
+
+            this.chooseBestCard(cardScores, legalCards);
+            
         }
 
         private void updateChosenIndex()
@@ -57,6 +170,24 @@ namespace Hearts_AI
                     return;
                 }
             }
+        }
+
+        private void chooseBestCard(int[] scores, List<Card> legal_cards)
+        {
+            int max = scores[0];
+            int maxIndex = 0;
+
+            for(int i = 0; i < scores.Length; i++)
+            {
+                if(max > scores[i])
+                {
+                    max = scores[i];
+                    maxIndex = i;
+                }
+            }
+
+            this.chosenCard = legal_cards[maxIndex];
+            this.updateChosenIndex();
         }
 
         //updates the known cards held by the played_by player using deduction
@@ -84,12 +215,6 @@ namespace Hearts_AI
             this.deduceCardsFromVoids(game_in_progress.Round);
             this.deduceVoidsFromCards(game_in_progress.Round);
             this.deduceCardsFromCards();
-
-
-            //to check if everything is working according to plan, can be removed later
-            this.MemoryOfPlayers[0].showMemory();
-            this.MemoryOfPlayers[1].showMemory();
-            this.MemoryOfPlayers[2].showMemory();
 
         }
 
@@ -249,6 +374,60 @@ namespace Hearts_AI
             }
 
             return missingCards;
+        }
+
+        private List<Card> getCardsNotHeld(Round round_in_progress)
+        {
+            List<Card> cardsNotHeld = new List<Card>();
+
+            foreach(Card card in round_in_progress.getCardsRemaining())
+            {
+                if(this.hand.cardIsHeld(card) == false)
+                {
+                    cardsNotHeld.Add(card);
+                }
+            }
+
+            return cardsNotHeld;
+        }
+
+        /// <summary>
+        /// returns a list of possible cards held by another player based on memory of that player
+        /// </summary>
+        private List<Card> getPossibleCards(Memory memory, Round round_in_progress)
+        {
+            List<Card> possibleCards = new List<Card>();
+            List<Card> nonHeldCards = this.getCardsNotHeld(round_in_progress);
+            int suitIndex = 0;
+
+            foreach(Card nonHeldCard in nonHeldCards)
+            {
+                suitIndex = Deck.SUIT_INDEXES[nonHeldCard.Suit];
+
+                if (cardHeldByOtherPlayer(memory, nonHeldCard) == true)
+                    continue;
+
+                if (memory.isKnownVoid(nonHeldCard.Suit) == true)
+                    continue;
+
+                if (memory.isUnknownLength(nonHeldCard.Suit) == false && memory.isKnownCard(nonHeldCard) == false)
+                    continue;
+
+                possibleCards.Add(nonHeldCard);
+            }
+
+            return possibleCards;
+        }
+
+        private bool cardHeldByOtherPlayer(Memory memory, Card card)
+        {
+            foreach (Memory memorizedHand in this.memoryOfPlayers)
+            {
+                if (memorizedHand.isKnownCard(card) && memorizedHand != memory)
+                    return true;
+            }
+
+            return false;
         }
 
         private void addMissingCardsToMemory(Memory memory, List<Card> missing_cards)

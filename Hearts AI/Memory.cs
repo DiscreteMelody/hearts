@@ -20,6 +20,19 @@ namespace Hearts_AI
             this.memorizedPlayer = player_to_memorize;
         }
 
+        public Memory(Memory memory_to_copy)
+        {
+            this.memorizedPlayer = new Player(memory_to_copy.memorizedPlayer);
+
+            for(int s = 0; s < memory_to_copy.memoryOfHand.Length; s++)
+            {
+                for(int v = 0; v < memory_to_copy.memoryOfHand[s].Count; v++)
+                {
+                    this.memoryOfHand[s].Add(new Card(memory_to_copy.memoryOfHand[s][v]));
+                }
+            }
+        }
+
         public Player MemorizedPlayer
         {
             get { return this.memorizedPlayer; }

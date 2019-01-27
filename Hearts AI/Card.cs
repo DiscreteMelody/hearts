@@ -7,21 +7,27 @@ using System.Threading.Tasks;
 
 namespace Hearts_AI
 {
-    [Serializable]
     class Card
     {
         public static readonly int MIN_VALUE = 1;  //the bottom of a suit is represented as this number in strength
         public static readonly int NONE_REMAIN_VALUE = 0;   //the value of a card if no other player holds this suit
 
-        private string value;
-        private string suit;
-        private int points;
+        private string value = "";
+        private string suit = "";
+        private int points = 0;
 
         public Card(string card_value, string card_suit, int card_points = 0)
         {
             this.value = card_value;
             this.suit = card_suit;
             this.points = card_points;
+        }
+
+        public Card(Card card_to_copy)
+        {
+            this.value = card_to_copy.value;
+            this.suit = card_to_copy.suit;
+            this.points = card_to_copy.points;
         }
 
         public string Value

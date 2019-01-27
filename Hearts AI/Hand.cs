@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 
 namespace Hearts_AI
 {
-    [Serializable]
     class Hand
     {
         //2D list of cards held in the 4 suits
@@ -15,6 +14,16 @@ namespace Hearts_AI
         public List<Card> CardsHeld
         {
             get { return this.cardsHeld; }
+        }
+
+        public Hand()
+        {
+
+        }
+
+        public Hand(Hand hand_to_copy)
+        {
+
         }
 
         public List<Card> getHeldSuit(string suit_name)

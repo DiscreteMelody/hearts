@@ -32,6 +32,25 @@ namespace Hearts_AI
             this.createBotMemories();
         }
 
+        //copy constructor
+        public Game(Game game_to_copy)
+        {
+            for(int i = 0; i < game_to_copy.players.Length; i++)
+            {
+                this.players[i] = new Player(game_to_copy.players[i]);
+            }
+            
+            for(int i = 0; i < game_to_copy.bots.Count; i++)
+            {
+                this.bots.Add(new Bot(game_to_copy.bots[i]));
+            }
+
+            this.deck = new Deck();
+            this.round = new Round(game_to_copy.Round);
+
+            deck.shuffle();
+        }
+
         public Player[] Players
         {
             get { return this.players; }
@@ -40,6 +59,7 @@ namespace Hearts_AI
         public Round Round
         {
             get { return this.round; }
+            set { this.round = value; }
         }
 
         public void dealCards()
@@ -55,13 +75,12 @@ namespace Hearts_AI
 
         public void startRound()
         {
-            //deal cards and order them in players hands
-            reshuffleCards();
-            dealCards();
-            this.sortPlayerHands();
             this.round.startNewRound();
+            this.reshuffleCards();
+            this.dealCards();
+            this.sortPlayerHands();
             this.resetBotMemories();
-            find2ofClubs();
+            this.find2ofClubs();
         }
 
         public void endRound()
@@ -229,7 +248,6 @@ namespace Hearts_AI
             else if(this.round.Trick.CardCount == 4)
             {
                 player.Turn = false;
-                this.round.TricksRemaining--;
             }
 
             this.bots[0].updateMemory(this, player, card);
@@ -239,6 +257,7 @@ namespace Hearts_AI
         public void reshuffleCards()
         {
             deck = new Deck();
+            deck.shuffle();
         }
 
         //finds the player clockwise of the player whose turn it is and sets it to their turn

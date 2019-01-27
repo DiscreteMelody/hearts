@@ -8,11 +8,11 @@ using System.Windows.Forms;
 
 namespace Hearts_AI
 {
-    [Serializable]
     class Deck
     {
         public static readonly string[] SUITS = new string[] { "clubs", "diamonds", "spades", "hearts" };
         public static readonly string[] VALUES = new string[] { "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A" };
+        public static readonly int NUM_OF_CARDS = Deck.SUITS.Length * Deck.VALUES.Length;
         public static readonly Dictionary<string, int> SUIT_INDEXES = new Dictionary<string, int>()
         {
             { "clubs", 0 },
@@ -46,10 +46,9 @@ namespace Hearts_AI
             }
 
             cardsLeft = cards.Count;
-            this.shuffle();
         }
 
-        private void shuffle()
+        public void shuffle()
         {
             Card bottomCard = this.cards[cardsLeft - 1];
             int randomIndex = 0;
