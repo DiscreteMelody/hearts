@@ -18,6 +18,7 @@ namespace Hearts_AI
         private int roundCounter = 0;
         private bool heartsAreBroken = false;
         private int numOfCardsRemaining = Deck.NUM_OF_CARDS;
+        private int pointsRemaining = 26;
         private List<Card>[] cardsRemaining = new List<Card>[4] { new List<Card>(), new List<Card>(), new List<Card>(), new List<Card>()};
 
         public Round()
@@ -48,6 +49,21 @@ namespace Hearts_AI
         {
             get { return this.tricksRemaining; }
             set { this.tricksRemaining = value; }
+        }
+
+        public int PointsRemaining
+        {
+            get
+            {
+                int pointsLeft = 0;
+
+                foreach(Card card in this.getCardsRemaining())
+                {
+                    pointsLeft += card.Points;
+                }
+
+                return pointsLeft;
+            }
         }
 
         public Trick Trick

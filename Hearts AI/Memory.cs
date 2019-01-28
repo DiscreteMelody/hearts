@@ -23,8 +23,9 @@ namespace Hearts_AI
         public Memory(Memory memory_to_copy)
         {
             this.memorizedPlayer = new Player(memory_to_copy.memorizedPlayer);
+            this.memoryOfHand = new List<Card>[4] { new List<Card>(), new List<Card>(), new List<Card>(), new List<Card>() };
 
-            for(int s = 0; s < memory_to_copy.memoryOfHand.Length; s++)
+            for (int s = 0; s < memory_to_copy.memoryOfHand.Length; s++)
             {
                 for(int v = 0; v < memory_to_copy.memoryOfHand[s].Count; v++)
                 {

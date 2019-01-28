@@ -23,7 +23,12 @@ namespace Hearts_AI
 
         public Hand(Hand hand_to_copy)
         {
+            this.cardsHeld = new List<Card>();
 
+            foreach(Card card in hand_to_copy.cardsHeld)
+            {
+                this.cardsHeld.Add(new Card(card));
+            }
         }
 
         public List<Card> getHeldSuit(string suit_name)

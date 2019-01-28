@@ -27,6 +27,9 @@ namespace Hearts_AI
         {
             this.leadSuit = trick_to_copy.leadSuit;
             this.points = trick_to_copy.points;
+            this.cards = new List<Card>();
+            this.players = new List<Player>();
+
             foreach(Card cardToCopy in trick_to_copy.cards)
             {
                 this.cards.Add(new Card(cardToCopy));

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -8,7 +9,6 @@ namespace Hearts_AI
 {
     class Bot : Player
     {
-        private Card chosenCard = new Card("", "");
         private int chosenCardIndex = 0;
         private Memory[] memoryOfPlayers = new Memory[Game.NUM_OF_PLAYERS - 1]; //the bot remembers all other players except for itself
 
@@ -26,10 +26,9 @@ namespace Hearts_AI
         /// <param name="bot_to_copy">The Bot object to deep copy.</param>
         public Bot(Bot bot_to_copy)
         {
-            this.chosenCard = new Card(bot_to_copy.chosenCard);
-            this.chosenCard = bot_to_copy.chosenCard;
+            this.memoryOfPlayers = new Memory[Game.NUM_OF_PLAYERS - 1];
 
-            for(int i = 0; i < bot_to_copy.memoryOfPlayers.Length; i++)
+            for (int i = 0; i < bot_to_copy.memoryOfPlayers.Length; i++)
             {
                 this.memoryOfPlayers[i] = new Memory(bot_to_copy.memoryOfPlayers[i]);
             }
@@ -71,7 +70,8 @@ namespace Hearts_AI
             List<List<Card>> possibleHeldCards = new List<List<Card>>();    //a 2D list of cards possibly held by others
             int playersLeftToPlay = Game.NUM_OF_PLAYERS - (copiedGame.Round.Trick.CardCount + 1);
             List<Card> permutation = new List<Card>();
-            int counter = 0;
+            int numOfPermutations = 0;
+            int averageScore = 0;
             bool permutating = true;
 
             //add an iterator for each player left to play in the trick and add a list of possible cards for each upcoming player
@@ -81,9 +81,14 @@ namespace Hearts_AI
                 possibleHeldCards.Add(this.getPossibleCards(this.memoryOfPlayers[i], copiedGame.Round));
             }
 
-            for(int c = 0; c < legalCards.Count; c++)
+            var stopwatch = new Stopwatch();
+            stopwatch.Start();
+
+            for (int c = 0; c < legalCards.Count; c++)
             {
                 permutating = true;
+                numOfPermutations = 0;
+                averageScore = 0;
 
                 while (permutating)
                 {
@@ -147,24 +152,46 @@ namespace Hearts_AI
                     }
 
                     copiedGame = new Game(game);
-                    //scoring function will go here
-                    counter++;
+
+                    for(int i = 0; i < permutation.Count; i++)
+                    {
+                        if(i > 0)
+                        {
+                            copiedGame.playCardFromPlayer(new Player(this.memoryOfPlayers[i - 1].MemorizedPlayer), permutation[i]);
+                        }
+                        else
+                        {
+                            copiedGame.playCardFromPlayer(new Bot(this), permutation[0]);
+                        }
+                    }
+
+                    averageScore += Simulator.scoreGame(copiedGame, new Bot(this));
+                    numOfPermutations++;
+
+                    if (numOfPermutations % 500 == 0)
+                    {
+                        System.Diagnostics.Debug.WriteLine(stopwatch.ElapsedMilliseconds);
+                        stopwatch.Reset();
+                        stopwatch.Start();
+                    }
+                        
                 }
+
+                averageScore /= numOfPermutations;
+                cardScores[c] = averageScore;
             }
 
-            System.Windows.Forms.MessageBox.Show(counter.ToString());
-
             this.chooseBestCard(cardScores, legalCards);
-            
+
         }
 
-        private void updateChosenIndex()
+        private void updateChosenIndex(Card card_chosen)
         {
             List<Card> hand = this.Hand.CardsHeld;
 
             for(int i = 0; i < hand.Count; i++)
             {
-                if(hand[i].Suit == chosenCard.Suit && hand[i].Value == chosenCard.Value)
+                if(hand[i].Suit == card_chosen.Suit && hand[i].Value == card_chosen.Value)
                 {
                     this.chosenCardIndex = i;
                     return;
@@ -184,10 +211,12 @@ namespace Hearts_AI
                     max = scores[i];
                     maxIndex = i;
                 }
+                System.Diagnostics.Debug.Write(scores[i] + ", ");
             }
+            System.Diagnostics.Debug.WriteLine("\n");
 
-            this.chosenCard = legal_cards[maxIndex];
-            this.updateChosenIndex();
+
+            this.updateChosenIndex(this.hand.CardsHeld[maxIndex]);
         }
 
         //updates the known cards held by the played_by player using deduction

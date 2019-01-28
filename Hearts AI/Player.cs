@@ -35,6 +35,7 @@ namespace Hearts_AI
         //copy constructor
         public Player(Player player_to_copy)
         {
+            this.hand = new Hand(player_to_copy.hand);
             this.nickname = player_to_copy.nickname;
             this.name = player_to_copy.nickname;
             this.totalScore = player_to_copy.totalScore;

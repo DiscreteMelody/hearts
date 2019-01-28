@@ -35,6 +35,9 @@ namespace Hearts_AI
         //copy constructor
         public Game(Game game_to_copy)
         {
+            this.players = new Player[Game.NUM_OF_PLAYERS];
+            this.bots = new List<Bot>();
+
             for(int i = 0; i < game_to_copy.players.Length; i++)
             {
                 this.players[i] = new Player(game_to_copy.players[i]);
@@ -250,7 +253,10 @@ namespace Hearts_AI
                 player.Turn = false;
             }
 
-            this.bots[0].updateMemory(this, player, card);
+            foreach(Bot bot in this.bots)
+            {
+                bot.updateMemory(this, player, card);
+            }
             
         }
 
