@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 
 namespace Hearts_AI
 {
-    [Serializable]
     class Game
     {
         public static readonly int NUM_OF_PLAYERS = Player.Nicknames.Length;
@@ -25,6 +24,7 @@ namespace Hearts_AI
             this.players[2] = north;
             this.players[3] = east;
 
+            bots.Add((Bot)south);
             bots.Add((Bot)west);
             bots.Add((Bot)north);
             bots.Add((Bot)east);
@@ -50,8 +50,6 @@ namespace Hearts_AI
 
             this.deck = new Deck();
             this.round = new Round(game_to_copy.Round);
-
-            deck.shuffle();
         }
 
         public Player[] Players
@@ -92,6 +90,7 @@ namespace Hearts_AI
             this.checkForMoon();
             this.addPointsTaken();
             this.resetRoundPoints();
+            this.updatePlaces();
             this.startRound();
         }
 
@@ -101,6 +100,22 @@ namespace Hearts_AI
             {
                 player.Hand.sortHand();
             }
+        }
+
+        public Player getPlayerTurn()
+        {
+            Player turn = null;
+
+            for(int i = 0; i < 0; i++)
+            {
+                if(this.players[i].Turn == true)
+                {
+                    turn = this.players[i];
+                    break;
+                }
+            }
+
+            return turn;
         }
 
         private void resetBotMemories()
@@ -207,7 +222,7 @@ namespace Hearts_AI
             int place = 1;
             int numOfPlayersPlaced = 0;
 
-            for(int i = 0; i > 0; i++)
+            for(int i = 0; i >= 0; i++)
             {
                 foreach(Player player in this.players)
                 {
@@ -224,7 +239,7 @@ namespace Hearts_AI
                 }
                 else
                 {
-                    place = 1 + numOfPlayersPlaced;
+                    place += numOfPlayersPlaced;
                 }
             }
         }
@@ -238,7 +253,23 @@ namespace Hearts_AI
             }
         }
 
-        public void playCardFromPlayer(Player player, Card card)
+        public Bot getBotTurn()
+        {
+            Bot botWithTurn = null;
+
+            for(int i = 0; i < this.bots.Count; i++)
+            {
+                if(bots[i].Turn == true)
+                {
+                    botWithTurn = bots[i];
+                    break;
+                }
+            }
+
+            return botWithTurn;
+        }
+
+        public void playCardFromPlayer(Player player, Card card, bool updateMemories = true)
         {
             this.round.Trick.addCardToTrick(player, card);
             player.Hand.removeCard(card);
@@ -253,11 +284,13 @@ namespace Hearts_AI
                 player.Turn = false;
             }
 
-            foreach(Bot bot in this.bots)
+            if(updateMemories == true)
             {
-                bot.updateMemory(this, player, card);
+                for (int i = 0; i < this.bots.Count; i++)
+                {
+                    bots[i].updateMemory(this, player, card);
+                }
             }
-            
         }
 
         public void reshuffleCards()
@@ -291,7 +324,7 @@ namespace Hearts_AI
             Player[] opponents = new Player[numOfPlayers];
 
             //south is always skipped, it is assumed south is always a player and not a bot
-            for(int i = 1; i < numOfPlayers; i++)
+            for(int i = 0; i < numOfPlayers; i++)
             {
                 //it's an eyesore, but a 3 player array going clockwise from the bot is being passed to the createMemory method
                 bot = (Bot)players[i];

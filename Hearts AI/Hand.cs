@@ -25,9 +25,9 @@ namespace Hearts_AI
         {
             this.cardsHeld = new List<Card>();
 
-            foreach(Card card in hand_to_copy.cardsHeld)
+            for(int i = 0; i < hand_to_copy.cardsHeld.Count; i++)
             {
-                this.cardsHeld.Add(new Card(card));
+                this.cardsHeld.Add(new Card(hand_to_copy.cardsHeld[i]));
             }
         }
 
@@ -127,9 +127,9 @@ namespace Hearts_AI
 
         public bool cardIsHeld(Card card_to_check)
         {
-            foreach(Card card in this.cardsHeld)
+            for(int i = 0; i < this.cardsHeld.Count; i++)
             {
-                if(card.Suit == card_to_check.Suit && card.Value == card_to_check.Value)
+                if(this.cardsHeld[i].Suit == card_to_check.Suit && this.cardsHeld[i].Value == card_to_check.Value)
                 {
                     return true;
                 }

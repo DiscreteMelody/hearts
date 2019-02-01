@@ -10,11 +10,12 @@ namespace Hearts_AI
 {
     static class Simulator
     {
-        private static int pointsToLowBonus = 3;    //score per point given to the winner
-        private static int pointsToLoserPenalty = -1;  //per place behind 1st
-        private static int pointsPerHighCardPenalty = -1;  //for each high card above a Card.MIN_VALUE relative value
-        private static int pointsForWestLeadingBonus = 1;    //if a card would result in West leading
-        private static int pointsForEndingPenalty = -1000;     //for ending the game. if player is in first, this is multiplied by -1
+        private static float pointsToLowBonus = 3f;    //score per point given to the winner
+        private static float pointsToLoserPenalty = -1f;  //per place behind 1st
+        private static float pointsPerHighCardPenalty = -1f;  //for each high card above a Card.MIN_VALUE relative value
+        private static float pointsForWestLeadingBonus = 1f;    //if a card would result in West leading
+        private static float pointsForEndingPenalty = -10000000f;     //for ending the game. if player is in first, this is multiplied by -1
+        private static float penaltyForTakingPoints = -10000f;       //for taking points
 
         public static int scoreGame()
         {
@@ -34,9 +35,9 @@ namespace Hearts_AI
             if (numOfLeadHeld < numOfLeadNotHeld)
                 numOfLeadRequired = 2;
 
-            foreach(Card card in sample_round.Trick.Cards)
+            for(int i = 0; i < sample_round.Trick.Cards.Count; i++)
             {
-                if (card.Suit == leadSuit)
+                if (sample_round.Trick.Cards[i].Suit == leadSuit)
                     numOfLeadRequired--;
             }
 
@@ -46,7 +47,7 @@ namespace Hearts_AI
             return isPossible;
         }
 
-        public static int scoreGame(Game game_to_score, Bot bot_to_score)
+        public static float scoreGame(Game game_to_score, Bot bot_to_score)
         {
             Round round = game_to_score.Round;
             Player trickWinner = round.Trick.findTrickWinner();
@@ -54,15 +55,24 @@ namespace Hearts_AI
             string leadSuit = round.Trick.LeadSuit;
             Hand handToScore = bot_to_score.Hand;
             int pointsLeftInRound = round.PointsRemaining;
-            int moveScore = 0;
+            bool heartsAreBroken = game_to_score.Round.HeartsAreBroken;
+            float moveScore = 0;
+
+            //to encourage taking tricks where hearts are broken
+            if (pointsLeftInRound >= 25 && pointsInTrick < 13)
+                pointsInTrick = -1;
 
             if(trickWinner.Place == 1 && trickWinner != bot_to_score)
             {
                 moveScore += (pointsInTrick * pointsToLowBonus);
             }
+            else if(trickWinner == bot_to_score)
+            {
+                moveScore += pointsInTrick * (penaltyForTakingPoints);
+            }
             else
             {
-                moveScore += (pointsInTrick * pointsToLoserPenalty * trickWinner.Place);
+                moveScore += pointsInTrick * pointsToLoserPenalty * trickWinner.Place;
             }
 
             if(trickWinner.RoundScore + trickWinner.TotalScore + pointsInTrick >= Game.ENDING_SCORE)
@@ -82,9 +92,11 @@ namespace Hearts_AI
                 moveScore += pointsForWestLeadingBonus;
             }
 
-            foreach(Card card in handToScore.CardsHeld)
+            Card card;
+            for(int i = 0; i < handToScore.CardsHeld.Count; i++)
             {
-                moveScore += ((card.getRelativeValue(handToScore, round) - 1) * (card.Points + 1)) * pointsPerHighCardPenalty;
+                card = handToScore.CardsHeld[i];
+                moveScore += card.getRelativeValue(handToScore, round);
             }
 
             return moveScore;

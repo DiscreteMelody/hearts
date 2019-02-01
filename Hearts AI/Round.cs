@@ -53,17 +53,7 @@ namespace Hearts_AI
 
         public int PointsRemaining
         {
-            get
-            {
-                int pointsLeft = 0;
-
-                foreach(Card card in this.getCardsRemaining())
-                {
-                    pointsLeft += card.Points;
-                }
-
-                return pointsLeft;
-            }
+            get { return this.pointsRemaining; }
         }
 
         public Trick Trick
@@ -82,6 +72,11 @@ namespace Hearts_AI
         {
             get { return this.roundCounter; }
             set { this.roundCounter = value; }
+        }
+
+        public bool HeartsAreBroken
+        {
+            get { return this.heartsAreBroken; }
         }
 
         /// <summary>

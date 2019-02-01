@@ -30,13 +30,13 @@ namespace Hearts_AI
             this.cards = new List<Card>();
             this.players = new List<Player>();
 
-            foreach(Card cardToCopy in trick_to_copy.cards)
+            for(int i = 0; i < trick_to_copy.cards.Count; i++)
             {
-                this.cards.Add(new Card(cardToCopy));
+                this.cards.Add(new Card(trick_to_copy.cards[i]));
             }
-            foreach(Player playerToCopy in trick_to_copy.players)
+            for(int i = 0; i < trick_to_copy.players.Count; i++)
             {
-                this.players.Add(new Player(playerToCopy));
+                this.players.Add(new Player(trick_to_copy.players[i]));
             }
         }
 

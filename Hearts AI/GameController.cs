@@ -20,7 +20,7 @@ namespace Hearts_AI
             this.heartsForm = window;
             this.createEventHandlers();
             game = new Game(
-                new Player("You", "South"),
+                new Bot("You", "South"),
                 new Bot("Matilda", "West"),
                 new Bot("Wendy", "North"),
                 new Bot("Morton", "East")
@@ -169,8 +169,12 @@ namespace Hearts_AI
                 }
             }
 
+            
+
             if (bot == null)
                 return;
+
+            await Task.Delay(500);
 
             bot.chooseCard(this.game);
             picBoxIndex = bot.ChosenCardIndex;

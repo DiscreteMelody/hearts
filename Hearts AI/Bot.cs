@@ -63,126 +63,121 @@ namespace Hearts_AI
 
         public async void chooseCard(Game game)
         {
-            Game copiedGame = new Game(game);
-            List<Card> legalCards = copiedGame.Round.getLegalCardsInHand(this);
-            int[] cardScores = new int[legalCards.Count];
-            List<int> iterators = new List<int>();
-            List<List<Card>> possibleHeldCards = new List<List<Card>>();    //a 2D list of cards possibly held by others
-            int playersLeftToPlay = Game.NUM_OF_PLAYERS - (copiedGame.Round.Trick.CardCount + 1);
-            List<Card> permutation = new List<Card>();
-            int numOfPermutations = 0;
-            int averageScore = 0;
-            bool permutating = true;
+            List<Card> legalCards = game.Round.getLegalCardsInHand(this);
+            Permutation[] permutations = this.getPermutations(game);
+            Permutation testPermutation = null;
+            float[] cardScores = new float[legalCards.Count];
+            Random rng = new Random();
+            int numOfTests = 2000;
+            float averageScore = 0;
+            Game sampleGame;
+            Bot botWithTurn;
 
-            //add an iterator for each player left to play in the trick and add a list of possible cards for each upcoming player
-            for (int i = 0; i < playersLeftToPlay; i++)
+            if (legalCards.Count == 1)
             {
-                iterators.Add(0);
-                possibleHeldCards.Add(this.getPossibleCards(this.memoryOfPlayers[i], copiedGame.Round));
+                this.updateChosenIndex(legalCards[0]);
+                return;
             }
-
-            var stopwatch = new Stopwatch();
-            stopwatch.Start();
 
             for (int c = 0; c < legalCards.Count; c++)
             {
-                permutating = true;
-                numOfPermutations = 0;
                 averageScore = 0;
 
-                while (permutating)
+                for(int t = 0; t < numOfTests; t++)
                 {
-                    permutation.Clear();
-                    permutation.Add(legalCards[c]);
+                    sampleGame = new Game(game);
+                    botWithTurn = sampleGame.getBotTurn();
+                    testPermutation = permutations[rng.Next(permutations.Length)];
 
-                    if(iterators.Count > 0)
+                    sampleGame.playCardFromPlayer(botWithTurn, legalCards[c]);
+
+                    for (int p = 0; p < testPermutation.Cards.Length; p++)
                     {
-                        for (int i = 0; i < iterators.Count; i++)
-                        {
-                            List<Card> currentHand = possibleHeldCards[i];
-                            int currentIterator = iterators[i];
-
-                            permutation.Add(currentHand[currentIterator]);
-                        }
-
-                        for (int i = 0; i < iterators.Count; i++)
-                        {
-                            if (iterators[i] < possibleHeldCards[i].Count - 1)
-                            {
-                                iterators[i]++;
-                                break;
-                            }
-                            else
-                            {
-                                iterators[i] = 0;
-                                continue;
-                            }
-                        }
-
-
-                        //if the iterators have all been reset to 0, all permutations have been checked
-                        if (iterators.Distinct().Count() == 1 && iterators[0] == 0)
-                        {
-                            permutating = false;
-                        }
-
-                        //to prevent multiple of a card from being permutated
-                        if (permutation.Count != permutation.Distinct().Count())
-                        {
-                            continue;
-                        }
-
-                        copiedGame.Round = new Round(game.Round);
-                        for(int i = 0; i < permutation.Count; i++)
-                        {
-                            if(i > 0)
-                                copiedGame.Round.Trick.addCardToTrick(this.memoryOfPlayers[i - 1].MemorizedPlayer, permutation[i]);
-                            else
-                                copiedGame.Round.Trick.addCardToTrick(this, permutation[i]);
-                        }
-
-                        if (Simulator.isPossibleTrick(copiedGame.Round, this) == false)
-                        {
-                            continue;
-                        }
-                    }
-                    else
-                    {
-                        permutating = false;
+                        sampleGame.playCardFromPlayer(sampleGame.getPlayerTurn(), testPermutation.Cards[p]);
                     }
 
-                    copiedGame = new Game(game);
-
-                    for(int i = 0; i < permutation.Count; i++)
-                    {
-                        if(i > 0)
-                        {
-                            copiedGame.playCardFromPlayer(new Player(this.memoryOfPlayers[i - 1].MemorizedPlayer), permutation[i]);
-                        }
-                        else
-                        {
-                            copiedGame.playCardFromPlayer(new Bot(this), permutation[0]);
-                        }
-                    }
-
-                    averageScore += Simulator.scoreGame(copiedGame, new Bot(this));
-                    numOfPermutations++;
-
-                    if (numOfPermutations % 500 == 0)
-                    {
-                        System.Diagnostics.Debug.WriteLine(stopwatch.ElapsedMilliseconds);
-                        stopwatch.Reset();
-                        stopwatch.Start();
-                    }
-                        
+                    averageScore += (testPermutation.Multiplier * Simulator.scoreGame());
                 }
 
-                averageScore /= numOfPermutations;
                 cardScores[c] = averageScore;
+                
             }
 
             this.chooseBestCard(cardScores, legalCards);
 
+        }
+
+        private Permutation[] getPermutations(Game game_in_progress)
+        {
+            Bot botToPlay = game_in_progress.getBotTurn();
+            List<List<Card>> possibleHeldCards = new List<List<Card>>();    //a 2D list of cards possibly held by others
+            Permutation[] permutations;
+            int playersLeftToPlay = Game.NUM_OF_PLAYERS - (game_in_progress.Round.Trick.CardCount + 1);
+            int[] iterators = new int[playersLeftToPlay];
+            Card[] permutation = new Card[playersLeftToPlay];
+            int numOfPermutations = 0;
+            bool permutating = true;
+            int maxPermutations = playersLeftToPlay;
+
+            //add an iterator for each player left to play in the trick and add a list of possible cards for each upcoming player
+            for (int i = 0; i < playersLeftToPlay; i++)
+            {
+                iterators[i] = 0;
+                possibleHeldCards.Add(this.getPossibleCards(botToPlay.memoryOfPlayers[i], game_in_progress.Round));
+                maxPermutations *= possibleHeldCards[i].Count - i;
+            }
+
+            permutations = new Permutation[maxPermutations];
+
+            while (permutating)
+            {
+                if (iterators.Length > 0)
+                {
+                    for (int i = 0; i < iterators.Length; i++)
+                    {
+                        List<Card> currentHand = possibleHeldCards[i];
+                        int currentIterator = iterators[i];
+
+                        permutation[i] = (currentHand[currentIterator]);
+                    }
+
+                    for (int i = 0; i < iterators.Length; i++)
+                    {
+                        if (iterators[i] < possibleHeldCards[i].Count - 1)
+                        {
+                            iterators[i]++;
+                            break;
+                        }
+                        else
+                        {
+                            iterators[i] = 0;
+                            continue;
+                        }
+                    }
+
+                    //if the iterators have all been reset to 0, all permutations have been checked
+                    if (iterators.Distinct().Count() == 1 && iterators[0] == 0)
+                    {
+                        permutating = false;
+                    }
+
+                    //to prevent multiple of a card from being permutated
+                    if (permutation.Length != permutation.Distinct().Count())
+                    {
+                        continue;
+                    }
+                }
+                else
+                {
+                    permutating = false;
+                }
+
+                permutations[numOfPermutations] = new Permutation(permutation, 1);
+
+                numOfPermutations++;
+            }
+
+            return permutations;
         }
 
         private void updateChosenIndex(Card card_chosen)
@@ -199,24 +194,24 @@ namespace Hearts_AI
             }
         }
 
-        private void chooseBestCard(int[] scores, List<Card> legal_cards)
+        private void chooseBestCard(float[] scores, List<Card> legal_cards)
         {
-            int max = scores[0];
+            float max = scores[0];
             int maxIndex = 0;
 
             for(int i = 0; i < scores.Length; i++)
             {
-                if(max > scores[i])
+                if(scores[i] >= max)
                 {
                     max = scores[i];
                     maxIndex = i;
                 }
                 System.Diagnostics.Debug.Write(scores[i] + ", ");
             }
-            System.Diagnostics.Debug.WriteLine("\n");
 
+            System.Diagnostics.Debug.WriteLine(this.nickname + " chose card number: " + (maxIndex + 1) + " from its legal cards");
 
-            this.updateChosenIndex(this.hand.CardsHeld[maxIndex]);
+            this.updateChosenIndex(legal_cards[maxIndex]);
         }
 
         //updates the known cards held by the played_by player using deduction
