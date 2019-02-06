@@ -153,20 +153,22 @@ namespace Hearts_AI
                     }
 
                     copiedGame = new Game(game);
+                    Bot botWithTurn = copiedGame.getBotTurn();
 
-                    for(int i = 0; i < permutation.Count; i++)
+                    for (int i = 0; i < permutation.Count; i++)
                     {
-                        if(i > 0)
+                        botWithTurn = copiedGame.getBotTurn();
+                        if (i > 0)
                         {
-                            copiedGame.playCardFromPlayer(new Bot(this).memoryOfPlayers[i - 1].MemorizedPlayer, permutation[i], false);
+                            copiedGame.playCardFromPlayer(botWithTurn.memoryOfPlayers[i - 1].MemorizedPlayer, permutation[i], false);
                         }
                         else
                         {
-                            copiedGame.playCardFromPlayer(new Bot(this), permutation[0], false);
+                            copiedGame.playCardFromPlayer(botWithTurn, permutation[0], false);
                         }
                     }
 
-                    averageScore += Simulator.scoreGame(copiedGame, copiedGame.getBotTurn());
+                    averageScore += Simulator.scoreGame(copiedGame, botWithTurn);
                     numOfPermutations++;
 
                     if (numOfPermutations % 5000 == 0)
@@ -208,7 +210,7 @@ namespace Hearts_AI
 
             for(int i = 0; i < scores.Length; i++)
             {
-                if(scores[i] >= max)
+                if(scores[i] > max)
                 {
                     max = scores[i];
                     maxIndex = i;

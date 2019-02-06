@@ -100,7 +100,7 @@ namespace Hearts_AI
 
             for(int i = 0; i < this.bots.Count; i++)
             {
-                if(players[i].Turn == true)
+                if (bots[i].Turn == true)
                 {
                     botWithTurn = bots[i];
                     break;
