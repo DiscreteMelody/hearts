@@ -939,43 +939,43 @@
             // 
             // southTrickPicBox
             // 
-            this.southTrickPicBox.Image = global::Hearts_AI.Properties.Resources.ace_of_hearts;
             this.southTrickPicBox.Location = new System.Drawing.Point(593, 439);
             this.southTrickPicBox.Name = "southTrickPicBox";
             this.southTrickPicBox.Size = new System.Drawing.Size(134, 198);
             this.southTrickPicBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
             this.southTrickPicBox.TabIndex = 5;
             this.southTrickPicBox.TabStop = false;
+            this.southTrickPicBox.Visible = false;
             // 
             // northTrickPicBox
             // 
-            this.northTrickPicBox.Image = global::Hearts_AI.Properties.Resources.queen_of_hearts;
             this.northTrickPicBox.Location = new System.Drawing.Point(593, 224);
             this.northTrickPicBox.Name = "northTrickPicBox";
             this.northTrickPicBox.Size = new System.Drawing.Size(134, 198);
             this.northTrickPicBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
             this.northTrickPicBox.TabIndex = 6;
             this.northTrickPicBox.TabStop = false;
+            this.northTrickPicBox.Visible = false;
             // 
             // westTrickPicBox
             // 
-            this.westTrickPicBox.Image = global::Hearts_AI.Properties.Resources.king_of_hearts;
             this.westTrickPicBox.Location = new System.Drawing.Point(493, 331);
             this.westTrickPicBox.Name = "westTrickPicBox";
             this.westTrickPicBox.Size = new System.Drawing.Size(134, 198);
             this.westTrickPicBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
             this.westTrickPicBox.TabIndex = 7;
             this.westTrickPicBox.TabStop = false;
+            this.westTrickPicBox.Visible = false;
             // 
             // eastTrickPicBox
             // 
-            this.eastTrickPicBox.Image = global::Hearts_AI.Properties.Resources.jack_of_hearts;
             this.eastTrickPicBox.Location = new System.Drawing.Point(693, 330);
             this.eastTrickPicBox.Name = "eastTrickPicBox";
             this.eastTrickPicBox.Size = new System.Drawing.Size(134, 198);
             this.eastTrickPicBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
             this.eastTrickPicBox.TabIndex = 8;
             this.eastTrickPicBox.TabStop = false;
+            this.eastTrickPicBox.Visible = false;
             // 
             // westLabel
             // 

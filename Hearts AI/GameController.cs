@@ -29,15 +29,19 @@ namespace Hearts_AI
             this.game.startRound();
             this.showCards();
             this.updateScoreLabels();
+            this.makeBotMove();
         }
 
-        private void setFormPicBoxToCard(PictureBox picBox, Card card)
+        private void setFormPicBoxToCard(PictureBox picBox, Card card, bool bring_to_front = false)
         {
             string filepath = card.getCardImagePath();
             Image image = Image.FromFile(filepath);
 
             picBox.Visible = true;
             heartsForm.setPictureBoxImage(picBox, image);
+
+            if (bring_to_front == true)
+                picBox.BringToFront();
         }
 
         private void clearFormPicBox(PictureBox picBox)
@@ -103,6 +107,7 @@ namespace Hearts_AI
             PictureBox pictureBoxClicked = null;
             PictureBox boxToChange = null;
             Player playerHandClicked = null;
+            bool bringToFront = true;
 
             for(int playerCounter = 0; playerCounter < Game.NUM_OF_PLAYERS; playerCounter++)
             {
@@ -122,7 +127,7 @@ namespace Hearts_AI
             if (this.game.Round.isLegalPlay(playerHandClicked, cardClicked) == false)
                 return;
 
-            setFormPicBoxToCard(boxToChange, cardClicked);
+            setFormPicBoxToCard(boxToChange, cardClicked, bringToFront);
             clearFormPicBox(pictureBoxClicked);
             game.playCardFromPlayer(playerHandClicked, cardClicked);
             showCards();

@@ -75,6 +75,13 @@ namespace Hearts_AI
             float averageScore = 0;
             bool permutating = true;
 
+            //no need to do expensive calculations if there is only 1 move
+            if(legalCards.Count == 1)
+            {
+                this.updateChosenIndex(legalCards[0]);
+                return;
+            }
+
             //add an iterator for each player left to play in the trick and add a list of possible cards for each upcoming player
             for (int i = 0; i < playersLeftToPlay; i++)
             {
