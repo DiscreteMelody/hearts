@@ -158,6 +158,7 @@ namespace Hearts_AI
             PictureBox picBoxToClick;
             int playerIndex = 0;
             int picBoxIndex = 0;
+            int delay = 500;
 
             for(int i = 0; i < Game.NUM_OF_PLAYERS; i++)
             {
@@ -175,6 +176,8 @@ namespace Hearts_AI
             bot.chooseCard(this.game);
             picBoxIndex = bot.ChosenCardIndex;
             picBoxToClick = this.heartsForm.getHandPicBoxes(playerIndex)[picBoxIndex];
+
+            await Task.Delay(delay);
 
             this.onCardClicked(picBoxToClick, EventArgs.Empty);
         }

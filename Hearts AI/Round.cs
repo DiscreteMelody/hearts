@@ -133,6 +133,7 @@ namespace Hearts_AI
             this.numOfCardsRemaining = Deck.NUM_OF_CARDS;
         }
 
+        //TODO, redundant creation of cards. add card creation duties to Deck class
         private void resetCardsRemaining()
         {
             int points = 0;

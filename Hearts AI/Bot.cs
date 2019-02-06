@@ -65,13 +65,14 @@ namespace Hearts_AI
         {
             Game copiedGame = new Game(game);
             List<Card> legalCards = copiedGame.Round.getLegalCardsInHand(this);
-            int[] cardScores = new int[legalCards.Count];
+            float[] cardScores = new float[legalCards.Count];
             List<int> iterators = new List<int>();
             List<List<Card>> possibleHeldCards = new List<List<Card>>();    //a 2D list of cards possibly held by others
             int playersLeftToPlay = Game.NUM_OF_PLAYERS - (copiedGame.Round.Trick.CardCount + 1);
+            List<List<Card>> permutations = new List<List<Card>>();
             List<Card> permutation = new List<Card>();
             int numOfPermutations = 0;
-            int averageScore = 0;
+            float averageScore = 0;
             bool permutating = true;
 
             //add an iterator for each player left to play in the trick and add a list of possible cards for each upcoming player
@@ -136,9 +137,9 @@ namespace Hearts_AI
                         for(int i = 0; i < permutation.Count; i++)
                         {
                             if(i > 0)
-                                copiedGame.Round.Trick.addCardToTrick(this.memoryOfPlayers[i - 1].MemorizedPlayer, permutation[i]);
+                                copiedGame.Round.Trick.addCardToTrick(new Player(this.memoryOfPlayers[i - 1].MemorizedPlayer), permutation[i]);
                             else
-                                copiedGame.Round.Trick.addCardToTrick(this, permutation[i]);
+                                copiedGame.Round.Trick.addCardToTrick(new Bot(this), permutation[i]);
                         }
 
                         if (Simulator.isPossibleTrick(copiedGame.Round, this) == false)
@@ -157,18 +158,18 @@ namespace Hearts_AI
                     {
                         if(i > 0)
                         {
-                            copiedGame.playCardFromPlayer(new Player(this.memoryOfPlayers[i - 1].MemorizedPlayer), permutation[i]);
+                            copiedGame.playCardFromPlayer(new Bot(this).memoryOfPlayers[i - 1].MemorizedPlayer, permutation[i], false);
                         }
                         else
                         {
-                            copiedGame.playCardFromPlayer(new Bot(this), permutation[0]);
+                            copiedGame.playCardFromPlayer(new Bot(this), permutation[0], false);
                         }
                     }
 
-                    averageScore += Simulator.scoreGame(copiedGame, new Bot(this));
+                    averageScore += Simulator.scoreGame(copiedGame, copiedGame.getBotTurn());
                     numOfPermutations++;
 
-                    if (numOfPermutations % 500 == 0)
+                    if (numOfPermutations % 5000 == 0)
                     {
                         System.Diagnostics.Debug.WriteLine(stopwatch.ElapsedMilliseconds);
                         stopwatch.Reset();
@@ -199,24 +200,26 @@ namespace Hearts_AI
             }
         }
 
-        private void chooseBestCard(int[] scores, List<Card> legal_cards)
+        private void chooseBestCard(float[] scores, List<Card> legal_cards)
         {
-            int max = scores[0];
+            float max = scores[0];
             int maxIndex = 0;
+            System.Diagnostics.Debug.WriteLine(this.nickname);
 
             for(int i = 0; i < scores.Length; i++)
             {
-                if(max > scores[i])
+                if(scores[i] >= max)
                 {
                     max = scores[i];
                     maxIndex = i;
                 }
-                System.Diagnostics.Debug.Write(scores[i] + ", ");
+                System.Diagnostics.Debug.Write(legal_cards[i].Value + " of " + legal_cards[i].Suit + " scores " + scores[i] + " points. ");
             }
+
             System.Diagnostics.Debug.WriteLine("\n");
 
 
-            this.updateChosenIndex(this.hand.CardsHeld[maxIndex]);
+            this.updateChosenIndex(legal_cards[maxIndex]);
         }
 
         //updates the known cards held by the played_by player using deduction

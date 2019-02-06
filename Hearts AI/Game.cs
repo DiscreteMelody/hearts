@@ -50,8 +50,6 @@ namespace Hearts_AI
 
             this.deck = new Deck();
             this.round = new Round(game_to_copy.Round);
-
-            deck.shuffle();
         }
 
         public Player[] Players
@@ -91,8 +89,25 @@ namespace Hearts_AI
             this.resetTurns();
             this.checkForMoon();
             this.addPointsTaken();
+            this.updatePlaces();
             this.resetRoundPoints();
             this.startRound();
+        }
+
+        public Bot getBotTurn()
+        {
+            Bot botWithTurn = null;
+
+            for(int i = 0; i < this.bots.Count; i++)
+            {
+                if(players[i].Turn == true)
+                {
+                    botWithTurn = bots[i];
+                    break;
+                }
+            }
+
+            return botWithTurn;
         }
 
         private void sortPlayerHands()
@@ -202,6 +217,7 @@ namespace Hearts_AI
             }
         }
 
+        //players tied will receive the same placement
         private void updatePlaces()
         {
             int place = 1;
@@ -218,6 +234,7 @@ namespace Hearts_AI
                     }
                 }
 
+                //to prevent an accidental infinite loop
                 if(numOfPlayersPlaced == Game.NUM_OF_PLAYERS || i == 200)
                 {
                     return;
@@ -238,7 +255,8 @@ namespace Hearts_AI
             }
         }
 
-        public void playCardFromPlayer(Player player, Card card)
+        //TODO optimize updateMemory() or remove it from method. took the most amount of time during Trick simulation by the bot
+        public void playCardFromPlayer(Player player, Card card, bool update_memories = true)
         {
             this.round.Trick.addCardToTrick(player, card);
             player.Hand.removeCard(card);
@@ -253,11 +271,14 @@ namespace Hearts_AI
                 player.Turn = false;
             }
 
-            foreach(Bot bot in this.bots)
+            if(update_memories == true)
             {
-                bot.updateMemory(this, player, card);
+                foreach (Bot bot in this.bots)
+                {
+                    bot.updateMemory(this, player, card);
+                }
             }
-            
+                
         }
 
         public void reshuffleCards()

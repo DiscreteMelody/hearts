@@ -15,6 +15,7 @@ namespace Hearts_AI
         private static int pointsPerHighCardPenalty = -1;  //for each high card above a Card.MIN_VALUE relative value
         private static int pointsForWestLeadingBonus = 1;    //if a card would result in West leading
         private static int pointsForEndingPenalty = -1000;     //for ending the game. if player is in first, this is multiplied by -1
+        private static int pointsForTakingPointsPenalty = -100;
 
         public static int scoreGame()
         {
@@ -31,6 +32,9 @@ namespace Hearts_AI
             int numOfLeadNotHeld = sample_round.CardsRemaining[Deck.SUIT_INDEXES[leadSuit]].Count - numOfLeadHeld;
             int numOfLeadRequired = 0;
 
+            if (sample_round.Trick.Points > 0 && sample_round.IsOpeningTrick == true)
+                return false;
+
             if (numOfLeadHeld < numOfLeadNotHeld)
                 numOfLeadRequired = 2;
 
@@ -46,7 +50,7 @@ namespace Hearts_AI
             return isPossible;
         }
 
-        public static int scoreGame(Game game_to_score, Bot bot_to_score)
+        public static float scoreGame(Game game_to_score, Bot bot_to_score)
         {
             Round round = game_to_score.Round;
             Player trickWinner = round.Trick.findTrickWinner();
@@ -54,11 +58,16 @@ namespace Hearts_AI
             string leadSuit = round.Trick.LeadSuit;
             Hand handToScore = bot_to_score.Hand;
             int pointsLeftInRound = round.PointsRemaining;
-            int moveScore = 0;
+            float moveScore = 0;
 
             if(trickWinner.Place == 1 && trickWinner != bot_to_score)
             {
                 moveScore += (pointsInTrick * pointsToLowBonus);
+            }
+            //TODO bot never sees itself as winning the trick
+            else if(trickWinner == bot_to_score)
+            {
+                moveScore += (pointsInTrick * pointsForTakingPointsPenalty);
             }
             else
             {
@@ -84,7 +93,7 @@ namespace Hearts_AI
 
             foreach(Card card in handToScore.CardsHeld)
             {
-                moveScore += ((card.getRelativeValue(handToScore, round) - 1) * (card.Points + 1)) * pointsPerHighCardPenalty;
+                moveScore += (card.getRelativeValue(handToScore, round) * pointsPerHighCardPenalty);
             }
 
             return moveScore;
