@@ -29,19 +29,21 @@ namespace Hearts_AI
         public Deck()
         {
             int points = 0;
-            foreach(string value in VALUES)
+            for(int s = 0; s < SUITS.Length; s++)
             {
-                foreach(string suit in SUITS)
+                for(int v = 0; v < VALUES.Length; v++)
                 {
+                    string suit = SUITS[s];
+                    string value = VALUES[v];
+                    int strength = v + 1;
+
                     if (value == "Q" && suit == "spades")
                         points = 13;
                     else if (suit == "hearts")
                         points = 1;
-                    else
-                        points = 0;
+                    else points = 0;
 
-                    cards.Add(new Card(value, suit, points));
-                    
+                    cards.Add(new Card(value, suit, strength, points));
                 }
             }
 
@@ -62,6 +64,14 @@ namespace Hearts_AI
                 randomIndex = rng.Next(cardsLeft + 1);
                 this.cards.Insert(randomIndex, this.cards[0]);
                 this.cards.RemoveAt(0);
+            }
+        }
+
+        public void addCardsToRound(Round round_to_start)
+        {
+            for(int i = 0; i < this.cards.Count; i++)
+            {
+                round_to_start.addCardToRound(this.cards[i]);
             }
         }
 

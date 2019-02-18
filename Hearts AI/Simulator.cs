@@ -15,7 +15,7 @@ namespace Hearts_AI
         private static int pointsPerHighCardPenalty = -1;  //for each high card above a Card.MIN_VALUE relative value
         private static int pointsForWestLeadingBonus = 1;    //if a card would result in West leading
         private static int pointsForEndingPenalty = -1000;     //for ending the game. if player is in first, this is multiplied by -1
-        private static int pointsForTakingPointsPenalty = -10;
+        private static int pointsForTakingPointsPenalty = -100;
 
         public static bool isPossibleTrick(Round sample_round, Bot permutating_bot)
         {
@@ -54,7 +54,7 @@ namespace Hearts_AI
             float moveScore = 0;
 
             //to encourage taking the first few points in a round
-            if (pointsInTrick >= 1 && pointsInTrick < 13 && pointsLeftInRound > 23)
+            if (pointsInTrick >= 1 && pointsInTrick < 13 && bot_to_score.RoundScore == 0)
                 pointsInTrick = -1;
 
             if(trickWinner.Place == 1 && trickWinner != bot_to_score)
@@ -89,7 +89,7 @@ namespace Hearts_AI
 
             foreach(Card card in handToScore.CardsHeld)
             {
-                moveScore += (card.getRelativeValue(handToScore, round) * pointsPerHighCardPenalty);
+                moveScore += (card.RelativeStrength * pointsPerHighCardPenalty);
             }
 
             return moveScore;

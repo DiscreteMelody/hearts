@@ -115,6 +115,7 @@ namespace Hearts_AI
             foreach (Player player in this.players)
             {
                 player.Hand.sortHand();
+                player.Hand.setRelativeStrengths(this.round);
             }
         }
 
@@ -283,7 +284,14 @@ namespace Hearts_AI
 
         public void reshuffleCards()
         {
+            foreach(Player player in this.players)
+            {
+                player.Hand.emptyHand();
+            }
+
+            this.round.emptyCards();
             deck = new Deck();
+            deck.addCardsToRound(this.round);
             deck.shuffle();
         }
 

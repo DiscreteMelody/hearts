@@ -51,13 +51,53 @@ namespace Hearts_AI
             cardsHeld.Add(card);
         }
 
+        public void emptyHand()
+        {
+            this.cardsHeld.Clear();
+        }
+
+        //iterates over the cards in a players hand. sets the strength of each card compared to remaining cards
+        //if two touching cards are held, their relative value is the same. ie if the 2 and 3 of diamonds are held, their relative value should be the same
+        //likewise, if the 2 and 5 of diamonds are held and the 3 and 4 have already been played, the 2 and 5 should have the same relative value
+        public void setRelativeStrengths(Round round_to_start)
+        {
+            int relativeStrength = Card.MIN_VALUE;
+            
+            //iterate by suit then value
+            for(int s  = 0; s < Deck.SUITS.Length; s++)
+            {
+                relativeStrength = Card.MIN_VALUE;
+
+                for (int v = 0; v < round_to_start.CardsRemaining[s].Count; v++)
+                {
+                    Card currentCard = round_to_start.CardsRemaining[s][v];   
+
+                    if (this.cardIsHeld(currentCard))
+                    {
+                        currentCard.setRelativeStrength(relativeStrength);
+                    }
+
+                    if (v + 1 < Deck.VALUES.Length)
+                    {
+                        Card nextCard = round_to_start.CardsRemaining[s][v + 1];
+                        if (this.cardIsHeld(currentCard) && this.cardIsHeld(nextCard))
+                        {
+                            continue;
+                        }
+                    }
+
+                    relativeStrength++;
+                }
+            }
+        }
+
         public void sortHand()
         {
             List<Card> orderedHand = new List<Card>();
             string[] suits = Deck.SUITS;
             string[] values = Deck.VALUES;
 
-            //iterates through suits then values and adds cars from high to low
+            //iterates through suits then values and adds cards from high to low
             //the high cards get shifted to the right resulting in an ascending order
             for(int s = suits.Length - 1; s >= 0; s--)
             {
@@ -122,6 +162,14 @@ namespace Hearts_AI
                     cardsHeld.RemoveAt(i);
                     break;
                 }
+            }
+        }
+
+        public void printCards()
+        {
+            foreach(Card card in this.cardsHeld)
+            {
+                System.Windows.Forms.MessageBox.Show(card.Value + " of " + card.Suit + " relative value: " + card.RelativeStrength);
             }
         }
 

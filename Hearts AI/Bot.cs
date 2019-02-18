@@ -178,7 +178,7 @@ namespace Hearts_AI
                     averageScore += Simulator.scoreGame(copiedGame, botWithTurn);
                     numOfPermutations++;
 
-                    if (numOfPermutations % 5000 == 0)
+                    if (numOfPermutations % 50000 == 0)
                     {
                         System.Diagnostics.Debug.WriteLine(stopwatch.ElapsedMilliseconds);
                         stopwatch.Reset();
@@ -353,7 +353,7 @@ namespace Hearts_AI
             //if a suit's remaining cards are in the bot's hand
             foreach(Card cardHeld in this.Hand.CardsHeld)
             {
-                if(cardHeld.getRelativeValue(this.Hand, round_in_progress) == Card.NONE_REMAIN_VALUE)
+                if(cardHeld.RelativeStrength == Card.NONE_REMAIN_VALUE)
                 {
                     this.markAllAsVoid(cardHeld.Suit);
                 }

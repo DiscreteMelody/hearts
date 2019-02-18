@@ -109,7 +109,7 @@ namespace Hearts_AI
             {
                 suit = Deck.SUITS[i];
                 memoryOfHand[i].Clear();
-                memoryOfHand[i].Add(new Card(unknownLengthSymbol, suit));
+                memoryOfHand[i].Add(new Card(unknownLengthSymbol, suit, 0));
             }
         }
 
@@ -171,7 +171,7 @@ namespace Hearts_AI
             int index = Deck.SUIT_INDEXES[suit];
 
             this.memoryOfHand[index].Clear();
-            this.memoryOfHand[index].Add(new Card(voidSymbol, suit));
+            this.memoryOfHand[index].Add(new Card(voidSymbol, suit, 0));
         }
 
         public int getNumOfKnownVoids()

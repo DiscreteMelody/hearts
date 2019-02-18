@@ -26,6 +26,7 @@ namespace Hearts_AI
             
         }
 
+        //copy constructor
         public Round(Round round_to_copy)
         {
             this.trick = new Trick(round_to_copy.trick);
@@ -129,50 +130,45 @@ namespace Hearts_AI
             this.isOpeningTrick = true;
             this.heartsAreBroken = false;
             this.roundCounter++;
-            this.resetCardsRemaining();
             this.numOfCardsRemaining = Deck.NUM_OF_CARDS;
         }
 
-        //TODO, redundant creation of cards. add card creation duties to Deck class
-        private void resetCardsRemaining()
+        public void addCardToRound(Card card_to_add)
         {
-            int points = 0;
-            string suit = "";
-            string value = "";
+            int index = Deck.SUIT_INDEXES[card_to_add.Suit];
+            this.cardsRemaining[index].Add(card_to_add);
+        }
 
-            for(int s = 0; s < Deck.SUITS.Length; s++)
+        public void emptyCards()
+        {
+            foreach(List<Card> suit in this.cardsRemaining)
             {
-                this.cardsRemaining[s].Clear();
-
-                for(int v = 0; v < Deck.VALUES.Length; v++)
-                {
-                    points = 0;
-                    suit = Deck.SUITS[s];
-                    value = Deck.VALUES[v];
-
-                    if (value == "Q" && suit == "spades")
-                        points = 13;
-                    else if (suit == "hearts")
-                        points = 1;
-
-                    this.cardsRemaining[s].Add(new Card(value, suit, points));
-                }
+                suit.Clear();
             }
-
-            this.numOfCardsRemaining = Deck.NUM_OF_CARDS;
         }
 
         public void removeFromRemainingCards(Card card_to_remove)
         {
             List<Card> suit = this.cardsRemaining[Deck.SUIT_INDEXES[card_to_remove.Suit]];
+            bool found = false;
+            int foundIndex = -1;
 
-            foreach(Card card in suit)
+            for(int i = 0; i < suit.Count; i++)
             {
-                if(card.Value == card_to_remove.Value)
+                if (found)
                 {
-                    suit.Remove(card);
-                    break;
+                    suit[i].lowerStrength();
                 }
+
+                if(suit[i].Value == card_to_remove.Value)
+                {
+                    found = true;
+                }
+            }
+
+            if(foundIndex > -1)
+            {
+                suit.RemoveAt(foundIndex);
             }
 
             this.numOfCardsRemaining--;
